@@ -1,21 +1,10 @@
-FROM python:3.8-alpine3.14
-ENV PATH="/scripts:${PATH}"
+FROM python:3
 
-COPY ./docker_files .
-
-RUN apk add --update --no-cache libpq libstdc++ \
- && apk add --update --no-cache --virtual .tmp g++ postgresql-dev linux-headers \
- && pip install --no-cache-dir -r requirements.txt \
- && apk del .tmp
-
-RUN rm /requirements.txt \
- && chmod +x /scripts/*
- 
-COPY ./code_files .
-
-RUN adduser -D user
-RUN chown -R user:user /database
-RUN chown -R user:user /app
-USER user
-
-CMD ["entrypoint.sh"]
+# USER app
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /db
+RUN mkdir /code
+WORKDIR /code
+ADD requirements.txt /code/
+RUN pip install -r requirements.txt
+ADD . /code/
